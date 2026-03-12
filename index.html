@@ -115,7 +115,6 @@
   }
   .nav-cta:hover { background: var(--cyan); color: var(--navy); box-shadow: 0 0 30px rgba(0,229,255,0.4); }
 
-  /* hamburger for mobile */
   .hamburger {
     display: none; flex-direction: column; gap: 5px; cursor: none;
     background: none; border: none; padding: 4px;
@@ -138,10 +137,8 @@
   }
   .mobile-menu a:hover { color: var(--cyan); }
 
-  /* ── SECTIONS ── */
   section { position: relative; z-index: 1; }
 
-  /* ── HERO ── */
   #hero {
     min-height: 100vh;
     display: flex; flex-direction: column;
@@ -225,13 +222,11 @@
   }
   .stat-label { color: var(--muted); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; margin-top: .3rem; }
 
-  /* ── FLOAT ICONS ── */
   .float-icon {
     position: absolute; pointer-events: none; opacity: 0;
     filter: drop-shadow(0 0 18px var(--cyan));
   }
 
-  /* ── SECTION HEADERS ── */
   .section-tag {
     text-align: center; margin-bottom: 1rem;
     font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cyan);
@@ -247,7 +242,6 @@
     font-size: 0.95rem; line-height: 1.7; font-weight: 300;
   }
 
-  /* ── FEATURES ── */
   #features {
     padding: 8rem 2rem;
     background: linear-gradient(180deg, var(--navy) 0%, var(--navy-mid) 100%);
@@ -283,7 +277,6 @@
   }
   .feature-card p { color: var(--muted); font-size: 0.88rem; line-height: 1.7; font-weight: 300; }
 
-  /* ── HOW IT WORKS ── */
   #how {
     padding: 8rem 2rem;
     background: var(--navy-mid);
@@ -313,7 +306,6 @@
   }
   .how-step p { color: var(--muted); font-size: 0.85rem; line-height: 1.65; }
 
-  /* ── VITALS (static, no fake live) ── */
   #vitals {
     padding: 8rem 2rem;
     background: linear-gradient(180deg, var(--navy-mid) 0%, var(--navy) 100%);
@@ -331,7 +323,6 @@
     display: flex; justify-content: space-between; align-items: flex-start;
     margin-bottom: 1.2rem;
   }
-  .vcard-icon { font-size: 1.8rem; }
   .vcard-badge {
     font-size: 0.68rem; padding: .28rem .75rem;
     border-radius: 100px; letter-spacing: 0.08em; font-weight: 500;
@@ -348,7 +339,6 @@
     margin-bottom: .25rem;
   }
   .vcard-sub { color: var(--muted); font-size: 0.78rem; }
-  /* static sparkline bar */
   .spark-bars {
     display: flex; align-items: flex-end; gap: 3px;
     height: 42px; margin-top: 1rem;
@@ -364,7 +354,6 @@
   .vcard:nth-child(3) .spark-bar { background: linear-gradient(180deg, #fbbf24, rgba(251,191,36,0.2)); }
   .vcard:nth-child(4) .spark-bar { background: linear-gradient(180deg, #a78bfa, rgba(167,139,250,0.2)); }
 
-  /* ── FORM ── */
   #preorder {
     padding: 8rem 2rem;
     background: linear-gradient(180deg, var(--navy) 0%, var(--navy-mid) 50%, var(--navy) 100%);
@@ -424,7 +413,6 @@
     box-shadow: 0 0 0 3px rgba(0,229,255,0.1), 0 0 20px rgba(0,229,255,0.05);
   }
   .form-group textarea { resize: none; height: 90px; }
-  select option { background: var(--navy-mid); color: var(--white); }
 
   .activity-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .7rem; margin-top: .2rem; }
   .activity-btn {
@@ -461,7 +449,6 @@
   .form-step { display: none; }
   .form-step.active { display: block; }
 
-  /* spinner */
   .spinner {
     width: 16px; height: 16px; border: 2px solid rgba(5,13,26,0.4);
     border-top-color: var(--navy); border-radius: 50%;
@@ -471,7 +458,6 @@
   .btn-next.loading .btn-label { display: none; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* error msg */
   .form-error {
     margin: 0 3rem 1rem; padding: .8rem 1rem;
     background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
@@ -479,7 +465,6 @@
   }
   .form-error.show { display: block; }
 
-  /* ── SUCCESS ── */
   .success-overlay {
     display: none; flex-direction: column;
     align-items: center; justify-content: center;
@@ -512,7 +497,6 @@
     color: var(--cyan); letter-spacing: 0.1em;
   }
 
-  /* confetti */
   .confetti-container { position: fixed; inset: 0; pointer-events: none; z-index: 1000; overflow: hidden; }
   .confetti-piece {
     position: absolute; border-radius: 2px; opacity: 0;
@@ -523,7 +507,6 @@
     100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
   }
 
-  /* ── TESTIMONIALS ── */
   #trust { padding: 6rem 2rem; background: var(--navy); }
   .trust-row { display: flex; gap: 1.5rem; max-width: 1000px; margin: 0 auto; flex-wrap: wrap; }
   .trust-card {
@@ -537,7 +520,6 @@
   .trust-author { font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 600; }
   .trust-role { color: var(--muted); font-size: 0.75rem; }
 
-  /* ── FOOTER ── */
   footer {
     padding: 2.8rem 3rem;
     border-top: 1px solid rgba(0,229,255,0.08);
@@ -553,7 +535,6 @@
   .footer-links a { color: rgba(176,210,240,0.4); text-decoration: none; font-size: 0.8rem; transition: color .2s; }
   .footer-links a:hover { color: var(--cyan); }
 
-  /* shake */
   @keyframes shake {
     0%,100%{ transform: translateX(0); }
     20%{ transform: translateX(-8px); }
@@ -562,7 +543,6 @@
     80%{ transform: translateX(5px); }
   }
 
-  /* ── RESPONSIVE ── */
   @media (max-width: 900px) {
     .vitals-showcase { grid-template-columns: 1fr 1fr; }
   }
@@ -594,7 +574,6 @@
     .success-overlay { padding: 2.5rem 1.5rem; }
   }
 
-  /* hide cursor on touch devices */
   @media (hover: none) {
     body { cursor: auto; }
     #paw-cursor, #cursor-trail { display: none; }
@@ -604,12 +583,9 @@
 </head>
 <body>
 
-<!-- PAW CURSOR -->
 <div id="paw-cursor">
   <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- paw pads -->
     <ellipse cx="32" cy="42" rx="14" ry="11" fill="rgba(0,229,255,0.9)" opacity="0.95"/>
-    <!-- toes -->
     <ellipse cx="18" cy="28" rx="7" ry="8.5" fill="rgba(0,229,255,0.85)" transform="rotate(-15 18 28)"/>
     <ellipse cx="31" cy="22" rx="7" ry="8.5" fill="rgba(0,229,255,0.85)"/>
     <ellipse cx="44" cy="28" rx="7" ry="8.5" fill="rgba(0,229,255,0.85)" transform="rotate(15 44 28)"/>
@@ -626,7 +602,6 @@
 <div class="confetti-container" id="confetti"></div>
 <canvas id="hero-canvas"></canvas>
 
-<!-- NAV -->
 <nav>
   <div class="logo">Praniva <span>AI</span></div>
   <ul class="nav-links">
@@ -647,7 +622,6 @@
   <a href="#preorder" onclick="closeMenu()">Pre-Order</a>
 </div>
 
-<!-- HERO -->
 <section id="hero">
   <div class="hero-badge"><span class="dot"></span>Healthcare 5.0 — Now for Pets</div>
   <h1 class="hero-title">
@@ -678,7 +652,6 @@
     </div>
   </div>
 
-  <!-- Floating Icons -->
   <svg class="float-icon" id="fi-heart" style="top:18%;left:7%;width:56px" viewBox="0 0 60 60">
     <path d="M30 50s-20-13-20-28a14 14 0 0128 0 14 14 0 0128 0C38 37 30 50 30 50z" fill="none" stroke="#00e5ff" stroke-width="1.5" stroke-linejoin="round"/>
   </svg>
@@ -702,7 +675,6 @@
   </svg>
 </section>
 
-<!-- FEATURES -->
 <section id="features">
   <div class="section-tag">What We Do</div>
   <h2 class="section-title">Pet Health, Reimagined</h2>
@@ -741,7 +713,6 @@
   </div>
 </section>
 
-<!-- HOW IT WORKS -->
 <section id="how">
   <div class="section-tag">Simple Process</div>
   <h2 class="section-title">How Praniva Works</h2>
@@ -770,7 +741,6 @@
   </div>
 </section>
 
-<!-- VITALS (static showcase, no fake live counters) -->
 <section id="vitals">
   <div class="section-tag">Digital Baseline</div>
   <h2 class="section-title">Your Pet's Health Dashboard</h2>
@@ -875,14 +845,12 @@
   </div>
 </section>
 
-<!-- PREORDER FORM -->
 <section id="preorder">
   <div class="section-tag">Create Your Profile</div>
   <h2 class="section-title">Build Your Pet's<br>Health Identity</h2>
   <p class="section-sub">Three quick steps to unlock your pet's personalized AI health system.</p>
 
   <div class="form-wrapper" id="form-wrapper">
-    <!-- Success screen -->
     <div class="success-overlay" id="success-view">
       <div class="success-ring"><span class="success-check">🐾</span></div>
       <div class="success-title">Welcome to Praniva!</div>
@@ -890,7 +858,6 @@
       <div class="success-code" id="success-id">PRN-000000</div>
     </div>
 
-    <!-- Form content -->
     <div id="form-content">
       <div class="form-header">
         <div class="step-indicators">
@@ -905,7 +872,6 @@
       <div class="form-error" id="form-error"></div>
 
       <div class="form-body">
-        <!-- Step 1 -->
         <div class="form-step active" id="step1">
           <div class="form-grid">
             <div class="form-group">
@@ -951,7 +917,6 @@
           </div>
         </div>
 
-        <!-- Step 2 -->
         <div class="form-step" id="step2">
           <div class="form-grid single">
             <div class="form-group">
@@ -994,7 +959,6 @@
           </div>
         </div>
 
-        <!-- Step 3 -->
         <div class="form-step" id="step3">
           <div class="form-grid single">
             <div class="form-group">
@@ -1050,7 +1014,6 @@
   </div>
 </section>
 
-<!-- TESTIMONIALS -->
 <section id="trust">
   <div class="section-tag">Early Adopters</div>
   <h2 class="section-title" style="margin-bottom:3rem">Pet Parents Love Praniva</h2>
@@ -1076,7 +1039,6 @@
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer>
   <div class="footer-logo">Praniva</div>
   <div class="footer-copy">© 2025 Praniva Health Technologies. All rights reserved.</div>
@@ -1088,7 +1050,6 @@
 </footer>
 
 <script>
-// ── PAW CURSOR ─────────────────────────────────────────────
 const pawEl = document.getElementById('paw-cursor');
 const trailEl = document.getElementById('cursor-trail');
 let mx = 0, my = 0, tx = 0, ty = 0;
@@ -1111,7 +1072,6 @@ document.querySelectorAll('button, a, input, select, textarea, .activity-btn').f
   el.addEventListener('mouseleave', () => pawEl.classList.remove('big'));
 });
 
-// ── MOBILE MENU ────────────────────────────────────────────
 function toggleMenu() {
   document.getElementById('mobile-menu').classList.toggle('open');
 }
@@ -1119,7 +1079,6 @@ function closeMenu() {
   document.getElementById('mobile-menu').classList.remove('open');
 }
 
-// ── THREE.JS PARTICLE BG ───────────────────────────────────
 (function initThree() {
   const canvas = document.getElementById('hero-canvas');
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -1180,7 +1139,6 @@ function closeMenu() {
   })();
 })();
 
-// ── GSAP ANIMATIONS ────────────────────────────────────────
 gsap.registerPlugin(ScrollTrigger);
 
 const tl = gsap.timeline({ delay: 0.3 });
@@ -1196,7 +1154,6 @@ tl.to('.hero-badge',   { opacity:1, y:0, duration:0.8, ease:'power3.out' })
   gsap.to(id, { rotation: i%2===0 ? 5:-5, duration:3+i*0.3, yoyo:true, repeat:-1, ease:'sine.inOut' });
 });
 
-// counter
 function animCount(el, target, suffix) {
   let c = 0; const step = Math.ceil(target / 80);
   const iv = setInterval(() => {
@@ -1214,41 +1171,35 @@ ScrollTrigger.create({
   }
 });
 
-// feature cards
 gsap.utils.toArray('.feature-card').forEach((card, i) => {
   gsap.to(card, { opacity:1, y:0, duration:0.7, delay:i*0.09,
     scrollTrigger: { trigger:card, start:'top 88%' }
   });
 });
 
-// how steps
 gsap.utils.toArray('.how-step').forEach((el, i) => {
   gsap.to(el, { opacity:1, y:0, duration:0.7, delay:i*0.12,
     scrollTrigger: { trigger:'#how', start:'top 75%' }
   });
 });
 
-// vitals
 gsap.utils.toArray('.vcard').forEach((card, i) => {
   gsap.to(card, { opacity:1, y:0, duration:0.7, delay:i*0.12,
     scrollTrigger: { trigger:'#vitals', start:'top 75%' }
   });
 });
 
-// form
 gsap.to('#form-wrapper', {
   opacity:1, y:0, duration:0.9,
   scrollTrigger: { trigger:'#preorder', start:'top 75%' }
 });
 
-// trust
 gsap.utils.toArray('.trust-card').forEach((card, i) => {
   gsap.to(card, { opacity:1, y:0, duration:0.7, delay:i*0.15,
     scrollTrigger: { trigger:'#trust', start:'top 82%' }
   });
 });
 
-// ── FORM LOGIC ─────────────────────────────────────────────
 let step = 1;
 let activity = '';
 const titles = ['Basic Information', 'Health & Activity', 'Your Details'];
@@ -1317,28 +1268,27 @@ async function submitForm() {
   const waitlistId = 'PRN-' + (Math.random() * 900000 + 100000 | 0);
 
   const formData = {
-    pet_name:         document.getElementById('f-name').value.trim(),
-    species:          document.getElementById('f-species').value,
-    breed:            document.getElementById('f-breed').value.trim(),
-    dob:              document.getElementById('f-dob').value || null,
-    weight_kg:        parseFloat(document.getElementById('f-weight').value) || null,
-    blood_group:      document.getElementById('f-blood').value || null,
-    activity_level:   activity || null,
+    pet_name: document.getElementById('f-name').value.trim(),
+    species: document.getElementById('f-species').value,
+    breed: document.getElementById('f-breed').value.trim(),
+    dob: document.getElementById('f-dob').value || null,
+    weight_kg: parseFloat(document.getElementById('f-weight').value) || null,
+    blood_group: document.getElementById('f-blood').value || null,
+    activity_level: activity || null,
     last_vaccination: document.getElementById('f-vacc').value || null,
-    is_neutered:      document.getElementById('f-neuter').value || null,
-    allergies:        document.getElementById('f-allergy').value.trim() || null,
-    medical_history:  document.getElementById('f-history').value.trim() || null,
-    owner_name:       document.getElementById('f-owner').value.trim(),
-    email:            document.getElementById('f-email').value.trim(),
-    phone:            document.getElementById('f-phone').value.trim() || null,
-    city:             document.getElementById('f-city').value.trim() || null,
-    preferred_vet:    document.getElementById('f-vet').value.trim() || null,
+    is_neutered: document.getElementById('f-neuter').value || null,
+    allergies: document.getElementById('f-allergy').value.trim() || null,
+    medical_history: document.getElementById('f-history').value.trim() || null,
+    owner_name: document.getElementById('f-owner').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    phone: document.getElementById('f-phone').value.trim() || null,
+    city: document.getElementById('f-city').value.trim() || null,
+    preferred_vet: document.getElementById('f-vet').value.trim() || null,
     discovery_source: document.getElementById('f-source').value || null,
-    waitlist_id:      waitlistId
+    waitlist_id: waitlistId
   };
 
   try {
-    // ✅ RELATIVE URL — works on Render, localhost, anywhere
     const response = await fetch('/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1351,14 +1301,13 @@ async function submitForm() {
       document.getElementById('success-id').textContent = waitlistId;
       launchConfetti();
     } else {
-      const err = await response.json().catch(() => ({}));
-      showError('Submission failed: ' + (err.message || 'Please try again.'));
+      const err = await response.json();
+      showError('Submission failed: ' + err.message);
       btn.disabled = false;
       btn.classList.remove('loading');
     }
   } catch (err) {
-    console.error('Submit error:', err);
-    showError('Connection error. Please check your internet and try again.');
+    showError('Connection error. Please try again.');
     btn.disabled = false;
     btn.classList.remove('loading');
   }
