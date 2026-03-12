@@ -9,7 +9,7 @@ CORS(app)
 # ── DATABASE CONFIG ──────────────────────────────────────────
 # On Render: uses PostgreSQL via DATABASE_URL environment variable
 # Locally: falls back to SQLite
-database_url = os.environ.get('DATABASE_URL', 'sqlite:///praniva.db')
+database_url = os.environ.get('DATABASE_URL', 'postgresql://praniva_db_user:rTAKkYCzpNFly4R2i6r8iXHKBlwBNrbn@dpg-d6pdnosr85hc73css77g-a/praniva_db')
 
 # Render gives a postgres:// URL but SQLAlchemy needs postgresql://
 if database_url.startswith('postgres://'):
