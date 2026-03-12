@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Praniva — Pet Health AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+  :root {
+    --navy: #050d1a;
+    --navy-mid: #0a1628;
+    --navy-light: #0f2040;
+    --cyan: #00e5ff;
+    --cyan-dim: #00b8d9;
+    --cyan-glow: rgba(0,229,255,0.15);
+    --teal: #00ffd0;
+    --white: #f0f8ff;
+    --muted: rgba(176,210,240,0.55);
+    --glass: rgba(10,22,40,0.6);
+    --glass-border: rgba(0,229,255,0.18);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  #cursor {
+    position: fixed; width: 12px; height: 12px;
+    background: var(--cyan); border-radius: 50%;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: width .2s, height .2s, background .2s;
+    box-shadow: 0 0 20px var(--cyan), 0 0 40px var(--cyan-dim);
+    mix-blend-mode: screen;
+  }
+  #cursor-ring {
+    position: fixed; width: 36px; height: 36px;
+    border: 1.5px solid rgba(0,229,255,0.4);
+    border-radius: 50%; pointer-events: none; z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: all 0.12s ease;
+  }
+  body:hover #cursor { opacity: 1; }
+
+  /* CANVAS BG */
+  #hero-canvas {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100vh;
+    z-index: 0; pointer-events: none;
+    opacity: 0.55;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    padding: 1.4rem 3rem;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(5,13,26,0.75);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(0,229,255,0.08);
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.6rem;
+    background: linear-gradient(135deg, var(--cyan), var(--teal));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: -0.03em;
+  }
+  .logo span { opacity: 0.5; font-weight: 400; }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none;
+    font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase;
+    transition: color .25s;
+  }
+  .nav-links a:hover { color: var(--cyan); }
+  .nav-cta {
+    padding: .55rem 1.4rem;
+    background: transparent;
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+    border-radius: 100px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: none; transition: all .25s;
+  }
+  .nav-cta:hover {
+    background: var(--cyan); color: var(--navy);
+    box-shadow: 0 0 30px rgba(0,229,255,0.4);
+  }
+
+  /* SECTIONS */
+  section { position: relative; z-index: 1; }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 8rem 2rem 4rem;
+    overflow: hidden;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .4rem 1.1rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 100px;
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 2.2rem;
+    opacity: 0; transform: translateY(20px);
+  }
+  .hero-badge .dot {
+    width: 6px; height: 6px; background: var(--cyan);
+    border-radius: 50%;
+    animation: pulse-dot 2s infinite;
+  }
+  @keyframes pulse-dot {
+    0%,100% { box-shadow: 0 0 0 0 rgba(0,229,255,0.6); }
+    50% { box-shadow: 0 0 0 6px rgba(0,229,255,0); }
+  }
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3.2rem, 7vw, 6.5rem);
+    font-weight: 800; line-height: 1.0;
+    letter-spacing: -0.04em;
+    opacity: 0; transform: translateY(30px);
+  }
+  .hero-title .line2 {
+    background: linear-gradient(90deg, var(--cyan) 0%, var(--teal) 60%, #a78bfa 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    display: block;
+  }
+  .hero-sub {
+    max-width: 560px; margin: 1.8rem auto 0;
+    color: var(--muted); font-size: 1.05rem; line-height: 1.7; font-weight: 300;
+    opacity: 0; transform: translateY(20px);
+  }
+  .hero-actions {
+    margin-top: 3rem;
+    display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+    opacity: 0; transform: translateY(20px);
+  }
+  .btn-primary {
+    padding: .85rem 2.2rem;
+    background: linear-gradient(135deg, var(--cyan), var(--teal));
+    color: var(--navy); font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 0.9rem; letter-spacing: 0.06em;
+    border: none; border-radius: 100px; cursor: none;
+    transition: all .3s; position: relative; overflow: hidden;
+    box-shadow: 0 0 40px rgba(0,229,255,0.3);
+  }
+  .btn-primary::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+    opacity: 0; transition: opacity .3s;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 60px rgba(0,229,255,0.5); }
+  .btn-primary:hover::before { opacity: 1; }
+  .btn-ghost {
+    padding: .85rem 2.2rem;
+    background: transparent;
+    color: var(--white); font-family: 'Syne', sans-serif;
+    font-weight: 600; font-size: 0.9rem; letter-spacing: 0.06em;
+    border: 1px solid rgba(255,255,255,0.18); border-radius: 100px; cursor: none;
+    transition: all .3s;
+  }
+  .btn-ghost:hover { border-color: var(--cyan); color: var(--cyan); background: var(--cyan-glow); }
+
+  .hero-stats {
+    margin-top: 5rem;
+    display: flex; gap: 3rem; justify-content: center; flex-wrap: wrap;
+    opacity: 0;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.2rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--white), var(--cyan));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .stat-label { color: var(--muted); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; margin-top: .3rem; }
+
+  /* 3D FLOATING ICONS */
+  .float-icon {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0;
+    filter: drop-shadow(0 0 20px var(--cyan));
+  }
+
+  /* FEATURES */
+  #features {
+    padding: 8rem 2rem;
+    background: linear-gradient(180deg, var(--navy) 0%, var(--navy-mid) 100%);
+  }
+  .section-tag {
+    text-align: center; margin-bottom: 1rem;
+    font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--cyan);
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 800; text-align: center;
+    letter-spacing: -0.03em; margin-bottom: .8rem;
+  }
+  .section-sub {
+    text-align: center; color: var(--muted);
+    max-width: 480px; margin: 0 auto 4rem;
+    font-size: 0.95rem; line-height: 1.7; font-weight: 300;
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem; max-width: 1100px; margin: 0 auto;
+  }
+  .feature-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px; padding: 2.2rem;
+    backdrop-filter: blur(16px);
+    transition: all .35s; position: relative; overflow: hidden;
+    opacity: 0; transform: translateY(30px);
+  }
+  .feature-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    opacity: 0; transition: opacity .35s;
+  }
+  .feature-card:hover { transform: translateY(-6px); border-color: rgba(0,229,255,0.35); box-shadow: 0 20px 60px rgba(0,229,255,0.1); }
+  .feature-card:hover::before { opacity: 1; }
+  .feature-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1.4rem; font-size: 1.5rem;
+    background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(0,255,208,0.1));
+    border: 1px solid rgba(0,229,255,0.2);
+  }
+  .feature-card h3 {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 1.1rem; margin-bottom: .7rem; letter-spacing: -0.01em;
+  }
+  .feature-card p { color: var(--muted); font-size: 0.88rem; line-height: 1.7; font-weight: 300; }
+
+  /* CHARTS */
+  #vitals {
+    padding: 8rem 2rem;
+    background: var(--navy-mid);
+  }
+  .vitals-container {
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+  }
+  .chart-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px; padding: 2rem;
+    backdrop-filter: blur(16px);
+    opacity: 0; transform: translateY(20px);
+  }
+  .chart-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .chart-title {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem;
+  }
+  .chart-badge {
+    font-size: 0.7rem; padding: .3rem .8rem;
+    background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.25);
+    border-radius: 100px; color: var(--cyan);
+    letter-spacing: 0.08em;
+  }
+  .chart-badge.green { background: rgba(0,255,160,0.1); border-color: rgba(0,255,160,0.25); color: var(--teal); }
+  .chart-canvas { width: 100%; height: 160px; position: relative; }
+  svg.chart { width: 100%; height: 100%; }
+  .live-value {
+    font-family: 'Syne', sans-serif; font-size: 2.4rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--cyan), var(--teal));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-top: .5rem;
+  }
+  .live-unit { color: var(--muted); font-size: 0.8rem; }
+
+  /* FORM */
+  #preorder {
+    padding: 8rem 2rem;
+    background: linear-gradient(180deg, var(--navy-mid) 0%, var(--navy) 100%);
+  }
+  .form-wrapper {
+    max-width: 680px; margin: 0 auto;
+    background: rgba(10,22,40,0.7);
+    border: 1px solid var(--glass-border);
+    border-radius: 32px;
+    backdrop-filter: blur(24px);
+    overflow: hidden;
+    box-shadow: 0 40px 120px rgba(0,0,0,0.5), 0 0 80px rgba(0,229,255,0.05);
+    opacity: 0; transform: translateY(30px);
+  }
+  .form-header {
+    padding: 2.5rem 3rem;
+    border-bottom: 1px solid var(--glass-border);
+    background: linear-gradient(135deg, rgba(0,229,255,0.05), rgba(0,255,208,0.03));
+  }
+  .step-indicators {
+    display: flex; gap: .6rem; margin-bottom: 1.5rem;
+  }
+  .step-dot {
+    height: 4px; border-radius: 100px;
+    background: rgba(255,255,255,0.15);
+    transition: all .4s; flex: 1;
+  }
+  .step-dot.active { background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+  .step-dot.done { background: var(--teal); }
+  .form-step-title {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.3rem;
+    margin-bottom: .4rem;
+  }
+  .form-step-sub { color: var(--muted); font-size: 0.85rem; }
+  .form-body { padding: 2.5rem 3rem; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+  .form-grid.single { grid-template-columns: 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: .5rem; }
+  .form-group label {
+    font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    background: rgba(5,13,26,0.6);
+    border: 1px solid rgba(0,229,255,0.15);
+    border-radius: 12px; padding: .8rem 1.1rem;
+    color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.92rem;
+    outline: none; transition: all .25s; cursor: none;
+    -webkit-appearance: none; appearance: none;
+  }
+  .form-group select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300e5ff' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 1rem center;
+    padding-right: 2.5rem;
+  }
+  .form-group input::placeholder, .form-group textarea::placeholder { color: rgba(176,210,240,0.3); }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--cyan);
+    box-shadow: 0 0 0 3px rgba(0,229,255,0.1), 0 0 20px rgba(0,229,255,0.05);
+  }
+  .form-group textarea { resize: none; height: 90px; }
+  select option { background: var(--navy-mid); color: var(--white); }
+  .activity-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .7rem; margin-top: .2rem; }
+  .activity-btn {
+    padding: .65rem; border-radius: 10px;
+    border: 1px solid rgba(0,229,255,0.15);
+    background: rgba(5,13,26,0.6);
+    color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
+    cursor: none; transition: all .25s; text-align: center;
+  }
+  .activity-btn.selected {
+    border-color: var(--cyan); color: var(--cyan);
+    background: rgba(0,229,255,0.1);
+  }
+  .form-footer {
+    padding: 1.8rem 3rem 2.5rem;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid rgba(0,229,255,0.08);
+  }
+  .btn-back {
+    background: none; border: none; color: var(--muted);
+    font-family: 'DM Sans', sans-serif; font-size: 0.88rem; cursor: none;
+    transition: color .25s;
+  }
+  .btn-back:hover { color: var(--white); }
+  .btn-next {
+    padding: .75rem 2rem;
+    background: linear-gradient(135deg, var(--cyan), var(--teal));
+    color: var(--navy); font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 0.88rem;
+    border: none; border-radius: 100px; cursor: none;
+    transition: all .3s;
+    box-shadow: 0 0 30px rgba(0,229,255,0.25);
+  }
+  .btn-next:hover { transform: translateX(3px); box-shadow: 0 0 50px rgba(0,229,255,0.4); }
+  .form-step { display: none; }
+  .form-step.active { display: block; }
+
+  /* SUCCESS */
+  .success-overlay {
+    display: none; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 4rem 3rem; text-align: center; min-height: 400px;
+  }
+  .success-overlay.show { display: flex; }
+  .success-ring {
+    width: 100px; height: 100px; border-radius: 50%;
+    border: 3px solid var(--cyan);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 2rem; position: relative;
+    box-shadow: 0 0 40px rgba(0,229,255,0.4);
+    animation: ring-pulse 2s infinite;
+  }
+  @keyframes ring-pulse {
+    0%,100% { box-shadow: 0 0 30px rgba(0,229,255,0.3); }
+    50% { box-shadow: 0 0 60px rgba(0,229,255,0.6), 0 0 100px rgba(0,229,255,0.2); }
+  }
+  .success-check { font-size: 2.8rem; }
+  .success-title {
+    font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; margin-bottom: .8rem;
+    background: linear-gradient(135deg, var(--white), var(--cyan));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .success-sub { color: var(--muted); font-size: 0.92rem; line-height: 1.7; font-weight: 300; }
+  .success-code {
+    margin-top: 1.5rem; padding: .7rem 1.5rem;
+    background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.25);
+    border-radius: 100px; font-family: 'Syne', sans-serif; font-size: 1rem;
+    color: var(--cyan); letter-spacing: 0.1em;
+  }
+  .confetti-container {
+    position: fixed; inset: 0; pointer-events: none; z-index: 1000; overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute; width: 8px; height: 8px;
+    border-radius: 2px; opacity: 0;
+    animation: confetti-fall 3s ease-in forwards;
+  }
+  @keyframes confetti-fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* TESTIMONIALS */
+  #trust {
+    padding: 6rem 2rem;
+    background: var(--navy);
+  }
+  .trust-row {
+    display: flex; gap: 1.5rem; max-width: 1000px; margin: 0 auto; flex-wrap: wrap;
+  }
+  .trust-card {
+    flex: 1; min-width: 260px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px; padding: 1.8rem;
+    backdrop-filter: blur(16px);
+    opacity: 0; transform: translateY(20px);
+  }
+  .trust-stars { color: var(--cyan); letter-spacing: .1rem; margin-bottom: .8rem; font-size: 0.9rem; }
+  .trust-text { color: var(--muted); font-size: 0.88rem; line-height: 1.7; font-weight: 300; margin-bottom: 1rem; font-style: italic; }
+  .trust-author { font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 600; }
+  .trust-role { color: var(--muted); font-size: 0.75rem; }
+
+  /* FOOTER */
+  footer {
+    padding: 3rem 3rem;
+    border-top: 1px solid rgba(0,229,255,0.08);
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+  }
+  .footer-logo {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem;
+    background: linear-gradient(135deg, var(--cyan), var(--teal));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .footer-copy { color: rgba(176,210,240,0.35); font-size: 0.78rem; }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a { color: rgba(176,210,240,0.4); text-decoration: none; font-size: 0.8rem; transition: color .2s; }
+  .footer-links a:hover { color: var(--cyan); }
+
+  /* GRID OVERLAY */
+  .grid-overlay {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.03;
+    background-image:
+      linear-gradient(rgba(0,229,255,1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,1) 1px, transparent 1px);
+    background-size: 80px 80px;
+  }
+
+  /* GLOW ORBS */
+  .orb {
+    position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
+    filter: blur(80px); opacity: 0.12;
+  }
+  .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, var(--cyan), transparent 70%); top: -10%; left: -10%; }
+  .orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, #7c3aed, transparent 70%); top: 50%; right: -8%; }
+  .orb-3 { width: 350px; height: 350px; background: radial-gradient(circle, var(--teal), transparent 70%); bottom: 10%; left: 30%; }
+
+  @media (max-width: 768px) {
+    nav { padding: 1.2rem 1.5rem; }
+    .nav-links { display: none; }
+    .vitals-container { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .form-body { padding: 1.8rem; }
+    .form-footer { padding: 1.5rem 1.8rem; }
+    .form-header { padding: 2rem 1.8rem; }
+    .hero-title { font-size: 2.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div class="grid-overlay"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+<div class="confetti-container" id="confetti"></div>
+
+<canvas id="hero-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Praniva <span>AI</span></div>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#vitals">Vitals</a></li>
+    <li><a href="#preorder">Pre-Order</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('preorder').scrollIntoView({behavior:'smooth'})">Join Waitlist</button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    Healthcare 5.0 — Now for Pets
+  </div>
+  <h1 class="hero-title">
+    Your Pet Deserves<br>
+    <span class="line2">Intelligent Care</span>
+  </h1>
+  <p class="hero-sub">Praniva uses AI to build a complete digital health baseline for your pet — predicting illness before symptoms appear, powered by real-time biometric intelligence.</p>
+  <div class="hero-actions">
+    <button class="btn-primary" onclick="document.getElementById('preorder').scrollIntoView({behavior:'smooth'})">
+      Create Pet Health Profile →
+    </button>
+    <button class="btn-ghost" onclick="document.getElementById('vitals').scrollIntoView({behavior:'smooth'})">
+      See Digital Baseline
+    </button>
+  </div>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num" data-count="12400">0</div>
+      <div class="stat-label">Pets Monitored</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" data-count="98">0</div>
+      <div class="stat-label">% Accuracy</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" data-count="340">0</div>
+      <div class="stat-label">Vet Partners</div>
+    </div>
+  </div>
+
+  <!-- Floating SVG Icons -->
+  <svg class="float-icon" id="fi-heart" style="top:18%;left:8%;width:60px" viewBox="0 0 60 60">
+    <path d="M30 50s-20-13-20-28a14 14 0 0128 0 14 14 0 0128 0C38 37 30 50 30 50z" fill="none" stroke="#00e5ff" stroke-width="1.5" stroke-linejoin="round"/>
+  </svg>
+  <svg class="float-icon" id="fi-paw" style="bottom:20%;right:7%;width:55px" viewBox="0 0 60 60">
+    <circle cx="20" cy="18" r="5" fill="none" stroke="#00ffd0" stroke-width="1.5"/>
+    <circle cx="40" cy="18" r="5" fill="none" stroke="#00ffd0" stroke-width="1.5"/>
+    <circle cx="12" cy="30" r="4" fill="none" stroke="#00ffd0" stroke-width="1.5"/>
+    <circle cx="48" cy="30" r="4" fill="none" stroke="#00ffd0" stroke-width="1.5"/>
+    <path d="M18 38c3-8 21-8 24 0s-3 12-12 12-15-4-12-12z" fill="none" stroke="#00ffd0" stroke-width="1.5"/>
+  </svg>
+  <svg class="float-icon" id="fi-dna" style="top:30%;right:5%;width:45px" viewBox="0 0 50 80">
+    <path d="M10 5 Q25 20 40 35 Q25 50 10 65 Q25 50 40 35 Q25 20 10 5" fill="none" stroke="#a78bfa" stroke-width="1.5"/>
+    <line x1="10" y1="20" x2="40" y2="25" stroke="rgba(167,139,250,0.4)" stroke-width="1"/>
+    <line x1="10" y1="40" x2="40" y2="45" stroke="rgba(167,139,250,0.4)" stroke-width="1"/>
+    <line x1="10" y1="58" x2="40" y2="53" stroke="rgba(167,139,250,0.4)" stroke-width="1"/>
+  </svg>
+  <svg class="float-icon" id="fi-collar" style="bottom:25%;left:5%;width:65px" viewBox="0 0 70 40">
+    <ellipse cx="35" cy="20" rx="30" ry="14" fill="none" stroke="#00e5ff" stroke-width="1.5"/>
+    <rect x="28" y="28" width="14" height="10" rx="3" fill="none" stroke="#00e5ff" stroke-width="1.5"/>
+    <circle cx="35" cy="35" r="3" fill="none" stroke="#00e5ff" stroke-width="1"/>
+    <line x1="18" y1="16" x2="22" y2="20" stroke="#00e5ff" stroke-width="1.2"/>
+    <line x1="48" y1="16" x2="52" y2="20" stroke="#00e5ff" stroke-width="1.2"/>
+  </svg>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-tag">What We Do</div>
+  <h2 class="section-title">Pet Health, Reimagined</h2>
+  <p class="section-sub">Praniva continuously monitors, learns, and acts — giving your pet's health the same rigor as the world's best hospitals.</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🧬</div>
+      <h3>Biometric Baseline</h3>
+      <p>AI builds a precise health fingerprint for your pet using daily vitals, behavior patterns, and genetic breed data to establish what's truly normal for them.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <h3>Predictive Alerts</h3>
+      <p>Our models detect subtle deviations 3–7 days before clinical symptoms. Get notified before your pet even feels unwell — not after.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🩺</div>
+      <h3>Vet Network Integration</h3>
+      <p>Share a live health dashboard directly with your vet. No more guessing — every appointment backed by months of objective data.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💊</div>
+      <h3>Medication Tracking</h3>
+      <p>Never miss a dose or booster. Praniva tracks vaccination schedules, medications, and allergies with smart reminders.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Digital Health Record</h3>
+      <p>A single, lifelong health record that travels with your pet — from puppy to senior, across every vet and every city.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🌡️</div>
+      <h3>24/7 AI Companion</h3>
+      <p>Ask anything about your pet's health at 3am. Praniva's AI answers with context from your pet's actual data — not generic advice.</p>
+    </div>
+  </div>
+</section>
+
+<!-- VITALS CHARTS -->
+<section id="vitals">
+  <div class="section-tag">Digital Baseline</div>
+  <h2 class="section-title">Live Pet Vitals Simulation</h2>
+  <p class="section-sub">Watch how Praniva tracks your pet's biometric trends in real time. This is Max's live dashboard.</p>
+  <div class="vitals-container">
+    <div class="chart-card" id="hr-card">
+      <div class="chart-header">
+        <div class="chart-title">❤️ Heart Rate</div>
+        <span class="chart-badge">Live</span>
+      </div>
+      <div class="chart-canvas">
+        <svg class="chart" id="hr-chart" viewBox="0 0 400 140" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="hrGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#00e5ff" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#00e5ff" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path id="hr-fill" fill="url(#hrGrad)"/>
+          <path id="hr-line" fill="none" stroke="#00e5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="live-value" id="hr-val">-- </div>
+      <div class="live-unit">BPM · Border Collie "Max" · Optimal Range: 70–120</div>
+    </div>
+    <div class="chart-card" id="temp-card">
+      <div class="chart-header">
+        <div class="chart-title">🌡️ Body Temperature</div>
+        <span class="chart-badge green">Normal</span>
+      </div>
+      <div class="chart-canvas">
+        <svg class="chart" id="temp-chart" viewBox="0 0 400 140" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="tempGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#00ffd0" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#00ffd0" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path id="temp-fill" fill="url(#tempGrad)"/>
+          <path id="temp-line" fill="none" stroke="#00ffd0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="live-value" id="temp-val" style="background:linear-gradient(135deg,#00ffd0,#00e5ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">-- </div>
+      <div class="live-unit">°F · Normal: 99.5–102.5°F</div>
+    </div>
+    <div class="chart-card" id="act-card">
+      <div class="chart-header">
+        <div class="chart-title">🏃 Activity Score</div>
+        <span class="chart-badge">Weekly</span>
+      </div>
+      <div class="chart-canvas">
+        <svg class="chart" id="act-chart" viewBox="0 0 400 140" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="actGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <g id="act-bars"></g>
+        </svg>
+      </div>
+      <div class="live-value" id="act-val" style="background:linear-gradient(135deg,#a78bfa,#00e5ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">-- </div>
+      <div class="live-unit">Active Minutes Today · Goal: 90 min</div>
+    </div>
+    <div class="chart-card" id="sleep-card">
+      <div class="chart-header">
+        <div class="chart-title">😴 Sleep Quality</div>
+        <span class="chart-badge green">Good</span>
+      </div>
+      <div class="chart-canvas">
+        <svg class="chart" id="sleep-chart" viewBox="0 0 400 140" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="sleepGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path id="sleep-fill" fill="url(#sleepGrad)"/>
+          <path id="sleep-line" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="live-value" id="sleep-val" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent">-- </div>
+      <div class="live-unit">Hours · Recommended: 12–14 hrs</div>
+    </div>
+  </div>
+</section>
+
+<!-- PREORDER FORM -->
+<section id="preorder">
+  <div class="section-tag">Create Your Profile</div>
+  <h2 class="section-title">Build Your Pet's<br>Health Identity</h2>
+  <p class="section-sub">Three quick steps to unlock your pet's personalized AI health system.</p>
+
+  <div class="form-wrapper" id="form-wrapper">
+    <!-- Success -->
+    <div class="success-overlay" id="success-view">
+      <div class="success-ring"><span class="success-check">🐾</span></div>
+      <div class="success-title">Welcome to Praniva!</div>
+      <p class="success-sub">Your pet's health profile has been created.<br>You're on the waitlist — we'll notify you at launch.</p>
+      <div class="success-code" id="success-id">PRN-000000</div>
+    </div>
+
+    <!-- Form -->
+    <div id="form-content">
+      <div class="form-header">
+        <div class="step-indicators">
+          <div class="step-dot active" id="sd1"></div>
+          <div class="step-dot" id="sd2"></div>
+          <div class="step-dot" id="sd3"></div>
+        </div>
+        <div class="form-step-title" id="step-title">Basic Information</div>
+        <div class="form-step-sub" id="step-sub">Tell us about your furry companion</div>
+      </div>
+      <div class="form-body">
+        <!-- Step 1 -->
+        <div class="form-step active" id="step1">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Pet Name *</label>
+              <input type="text" id="f-name" placeholder="e.g. Max, Luna..."/>
+            </div>
+            <div class="form-group">
+              <label>Species *</label>
+              <select id="f-species">
+                <option value="">Select species</option>
+                <option>Dog</option>
+                <option>Cat</option>
+                <option>Rabbit</option>
+                <option>Bird</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Breed *</label>
+              <input type="text" id="f-breed" placeholder="e.g. Golden Retriever"/>
+            </div>
+            <div class="form-group">
+              <label>Date of Birth</label>
+              <input type="date" id="f-dob"/>
+            </div>
+          </div>
+          <div class="form-grid" style="margin-top:1.2rem">
+            <div class="form-group">
+              <label>Weight (kg) *</label>
+              <input type="number" id="f-weight" placeholder="e.g. 12.5" min="0" step="0.1"/>
+            </div>
+            <div class="form-group">
+              <label>Blood Group</label>
+              <select id="f-blood">
+                <option value="">Unknown / Not tested</option>
+                <option>DEA 1.1+ (Dog)</option>
+                <option>DEA 1.1- (Dog)</option>
+                <option>AB (Cat)</option>
+                <option>A (Cat)</option>
+                <option>B (Cat)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="form-step" id="step2">
+          <div class="form-grid single">
+            <div class="form-group">
+              <label>Activity Level *</label>
+              <div class="activity-grid" id="activity-grid">
+                <div class="activity-btn" data-val="sedentary" onclick="selectActivity(this)">🛋️ Sedentary</div>
+                <div class="activity-btn" data-val="low" onclick="selectActivity(this)">🚶 Low</div>
+                <div class="activity-btn" data-val="moderate" onclick="selectActivity(this)">🐕 Moderate</div>
+                <div class="activity-btn" data-val="active" onclick="selectActivity(this)">🏃 Active</div>
+                <div class="activity-btn" data-val="very-active" onclick="selectActivity(this)">⚡ Very Active</div>
+                <div class="activity-btn" data-val="athletic" onclick="selectActivity(this)">🏆 Athletic</div>
+              </div>
+            </div>
+          </div>
+          <div class="form-grid" style="margin-top:1.2rem">
+            <div class="form-group">
+              <label>Last Vaccination Date</label>
+              <input type="date" id="f-vacc"/>
+            </div>
+            <div class="form-group">
+              <label>Neutered / Spayed</label>
+              <select id="f-neuter">
+                <option value="">Not specified</option>
+                <option>Yes</option>
+                <option>No</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-grid single" style="margin-top:1.2rem">
+            <div class="form-group">
+              <label>Known Allergies</label>
+              <input type="text" id="f-allergy" placeholder="e.g. Chicken, Pollen... (or leave blank)"/>
+            </div>
+          </div>
+          <div class="form-grid single" style="margin-top:1.2rem">
+            <div class="form-group">
+              <label>Medical History (brief)</label>
+              <textarea id="f-history" placeholder="e.g. Hip dysplasia diagnosed 2022, on joint supplements..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="form-step" id="step3">
+          <div class="form-grid single">
+            <div class="form-group">
+              <label>Your Name *</label>
+              <input type="text" id="f-owner" placeholder="Your full name"/>
+            </div>
+          </div>
+          <div class="form-grid" style="margin-top:1.2rem">
+            <div class="form-group">
+              <label>Email Address *</label>
+              <input type="email" id="f-email" placeholder="you@example.com"/>
+            </div>
+            <div class="form-group">
+              <label>Phone (Optional)</label>
+              <input type="tel" id="f-phone" placeholder="+91 98765 43210"/>
+            </div>
+          </div>
+          <div class="form-grid" style="margin-top:1.2rem">
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" id="f-city" placeholder="e.g. Bangalore"/>
+            </div>
+            <div class="form-group">
+              <label>Preferred Vet (Optional)</label>
+              <input type="text" id="f-vet" placeholder="Clinic name"/>
+            </div>
+          </div>
+          <div class="form-grid single" style="margin-top:1.2rem">
+            <div class="form-group">
+              <label>How did you hear about Praniva?</label>
+              <select id="f-source">
+                <option value="">Select...</option>
+                <option>Social Media</option>
+                <option>Friend / Family</option>
+                <option>Vet Recommendation</option>
+                <option>Search Engine</option>
+                <option>News / Blog</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-footer">
+        <button class="btn-back" id="btn-back" onclick="prevStep()" style="visibility:hidden">← Back</button>
+        <span id="step-counter" style="color:var(--muted);font-size:0.78rem;letter-spacing:0.1em">STEP 1 OF 3</span>
+        <button class="btn-next" id="btn-next" onclick="nextStep()">Continue →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section id="trust">
+  <div class="section-tag">Early Adopters</div>
+  <h2 class="section-title" style="margin-bottom:3rem">Pet Parents Love Praniva</h2>
+  <div class="trust-row">
+    <div class="trust-card">
+      <div class="trust-stars">★★★★★</div>
+      <p class="trust-text">"Praniva detected early kidney stress in my cat Bruno before any symptoms showed. Three weeks later, our vet confirmed it. I'm genuinely amazed."</p>
+      <div class="trust-author">Priya Nair</div>
+      <div class="trust-role">Cat parent · Bangalore</div>
+    </div>
+    <div class="trust-card">
+      <div class="trust-stars">★★★★★</div>
+      <p class="trust-text">"The digital health record alone is worth it. My vet now has 8 months of clean data at every visit. Appointments are faster and more productive."</p>
+      <div class="trust-author">Rahul Sharma</div>
+      <div class="trust-role">Dog parent · Mumbai</div>
+    </div>
+    <div class="trust-card">
+      <div class="trust-stars">★★★★★</div>
+      <p class="trust-text">"As a vet myself, I recommend Praniva to all my clients. The baseline data they bring in has changed how I diagnose and treat chronic conditions."</p>
+      <div class="trust-author">Dr. Meera Iyer</div>
+      <div class="trust-role">Veterinarian · Chennai</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Praniva</div>
+  <div class="footer-copy">© 2025 Praniva Health Technologies. All rights reserved.</div>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Contact</a>
+  </div>
+</footer>
+
+<script>
+// ── CURSOR (RESTORED) ───────────────────────────────────
+const cur = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e=>{
+  mx=e.clientX; my=e.clientY;
+  cur.style.left=mx+'px'; cur.style.top=my+'px';
+});
+function animRing(){
+  rx+=(mx-rx)*0.1; ry+=(my-ry)*0.1;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(animRing);
+}
+animRing();
+document.querySelectorAll('button,a,input,select,textarea,.activity-btn').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.width='20px';cur.style.height='20px';ring.style.width='50px';ring.style.height='50px';});
+  el.addEventListener('mouseleave',()=>{cur.style.width='12px';cur.style.height='12px';ring.style.width='36px';ring.style.height='36px';});
+});
+
+// ── THREE.JS PARTICLE FIELD (RESTORED) ──────────────────
+const canvas=document.getElementById('hero-canvas');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.setSize(window.innerWidth,window.innerHeight);
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000);
+camera.position.z=5;
+
+const geo=new THREE.BufferGeometry();
+const N=2000;
+const pos=new Float32Array(N*3), vel=new Float32Array(N*3);
+for(let i=0;i<N;i++){
+  pos[i*3]=(Math.random()-0.5)*20;
+  pos[i*3+1]=(Math.random()-0.5)*20;
+  pos[i*3+2]=(Math.random()-0.5)*10;
+  vel[i*3]=  (Math.random()-0.5)*0.002;
+  vel[i*3+1]=(Math.random()-0.5)*0.002;
+  vel[i*3+2]=(Math.random()-0.5)*0.001;
+}
+geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+const mat=new THREE.PointsMaterial({size:0.04, color:0x00e5ff, transparent:true, opacity:0.6, sizeAttenuation:true});
+const pts=new THREE.Points(geo,mat);
+scene.add(pts);
+
+const lineMat=new THREE.LineBasicMaterial({color:0x00e5ff,transparent:true,opacity:0.06});
+for(let i=0;i<60;i++){
+  const lg=new THREE.BufferGeometry();
+  const lp=new Float32Array(6);
+  lp[0]=(Math.random()-0.5)*16; lp[1]=(Math.random()-0.5)*16; lp[2]=(Math.random()-0.5)*5;
+  lp[3]=(Math.random()-0.5)*16; lp[4]=(Math.random()-0.5)*16; lp[5]=(Math.random()-0.5)*5;
+  lg.setAttribute('position', new THREE.BufferAttribute(lp,3));
+  scene.add(new THREE.Line(lg,lineMat));
+}
+
+window.addEventListener('resize',()=>{
+  renderer.setSize(window.innerWidth,window.innerHeight);
+  camera.aspect=window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+});
+
+let t=0;
+function animCanvas(){
+  requestAnimationFrame(animCanvas);
+  t+=0.005;
+  const p=geo.attributes.position.array;
+  for(let i=0;i<N;i++){
+    p[i*3]  +=vel[i*3];   if(Math.abs(p[i*3])>10)  vel[i*3]  *=-1;
+    p[i*3+1]+=vel[i*3+1]; if(Math.abs(p[i*3+1])>10) vel[i*3+1]*=-1;
+    p[i*3+2]+=vel[i*3+2]; if(Math.abs(p[i*3+2])>5)  vel[i*3+2]*=-1;
+  }
+  geo.attributes.position.needsUpdate=true;
+  pts.rotation.y=t*0.05;
+  pts.rotation.x=Math.sin(t*0.3)*0.05;
+  renderer.render(scene,camera);
+}
+animCanvas();
+
+// ── GSAP ANIMATIONS (RESTORED) ──────────────────────────
+gsap.registerPlugin(ScrollTrigger);
+const tl=gsap.timeline({delay:0.3});
+tl.to('.hero-badge',{opacity:1,y:0,duration:0.8,ease:'power3.out'})
+  .to('.hero-title',{opacity:1,y:0,duration:0.9,ease:'power3.out'},'-=0.4')
+  .to('.hero-sub',{opacity:1,y:0,duration:0.8,ease:'power3.out'},'-=0.5')
+  .to('.hero-actions',{opacity:1,y:0,duration:0.7,ease:'power3.out'},'-=0.4')
+  .to('.hero-stats',{opacity:1,duration:0.7,ease:'power2.out'},'-=0.2');
+
+['#fi-heart','#fi-paw','#fi-dna','#fi-collar'].forEach((id,i)=>{
+  gsap.to(id,{opacity:0.7,duration:1,delay:1.2+i*0.2,ease:'power2.out'});
+  gsap.to(id,{y:-12,duration:2.5+i*0.5,yoyo:true,repeat:-1,ease:'sine.inOut',delay:i*0.4});
+  gsap.to(id,{rotation:i%2===0?5:-5,duration:3+i*0.3,yoyo:true,repeat:-1,ease:'sine.inOut'});
+});
+
+function animCount(el, target) {
+  let c=0; const step=Math.ceil(target/80);
+  const iv=setInterval(()=>{ c+=step; if(c>=target){c=target;clearInterval(iv);} el.textContent=c.toLocaleString()+(target===98?'%':''); },20);
+}
+ScrollTrigger.create({
+  trigger:'.hero-stats',
+  onEnter:()=>{
+    document.querySelectorAll('.stat-num').forEach(el=>{
+      animCount(el, parseInt(el.dataset.count));
+    });
+  }
+});
+
+gsap.utils.toArray('.feature-card').forEach((card,i)=>{
+  gsap.to(card,{ opacity:1,y:0,duration:0.7,delay:i*0.1, scrollTrigger:{trigger:card,start:'top 85%'} });
+});
+gsap.utils.toArray('.chart-card').forEach((card,i)=>{
+  gsap.to(card,{ opacity:1,y:0,duration:0.7,delay:i*0.12, scrollTrigger:{trigger:'#vitals',start:'top 70%'} });
+});
+gsap.utils.toArray('.trust-card').forEach((card,i)=>{
+  gsap.to(card,{ opacity:1,y:0,duration:0.7,delay:i*0.15, scrollTrigger:{trigger:'#trust',start:'top 80%'} });
+});
+gsap.to('#form-wrapper',{ opacity:1,y:0,duration:0.9, scrollTrigger:{trigger:'#preorder',start:'top 70%'} });
+
+// ── LIVE CHARTS (RESTORED) ──────────────────────────────
+let hrData = Array.from({length:30},()=>85+Math.random()*30);
+let tempData = Array.from({length:30},()=>100.5+Math.random()*1.5);
+let sleepData = Array.from({length:30},()=>11+Math.random()*3);
+
+function makeSparkPath(data, w=400, h=140, pad=10){
+  const mn=Math.min(...data)-5, mx=Math.max(...data)+5;
+  const pts=data.map((v,i)=>{
+    const x=pad + i*(w-pad*2)/(data.length-1);
+    const y=h-pad - (v-mn)/(mx-mn)*(h-pad*2);
+    return [x,y];
+  });
+  const d=pts.map((p,i)=>i===0?`M${p[0]},${p[1]}`:`L${p[0]},${p[1]}`).join(' ');
+  const fill=d+` L${pts[pts.length-1][0]},${h} L${pts[0][0]},${h} Z`;
+  return {line:d, fill};
+}
+
+function updateHR(){
+  hrData.shift(); hrData.push(85+Math.random()*30);
+  const {line,fill}=makeSparkPath(hrData);
+  document.getElementById('hr-line').setAttribute('d',line);
+  document.getElementById('hr-fill').setAttribute('d',fill);
+  document.getElementById('hr-val').textContent=Math.round(hrData[hrData.length-1])+' ';
+}
+function updateTemp(){
+  tempData.shift(); tempData.push(100.5+Math.random()*1.5);
+  const {line,fill}=makeSparkPath(tempData);
+  document.getElementById('temp-line').setAttribute('d',line);
+  document.getElementById('temp-fill').setAttribute('d',fill);
+  document.getElementById('temp-val').textContent=tempData[tempData.length-1].toFixed(1)+' ';
+}
+function updateSleep(){
+  sleepData.shift(); sleepData.push(11+Math.random()*3);
+  const {line,fill}=makeSparkPath(sleepData);
+  document.getElementById('sleep-line').setAttribute('d',line);
+  document.getElementById('sleep-fill').setAttribute('d',fill);
+  document.getElementById('sleep-val').textContent=sleepData[sleepData.length-1].toFixed(1)+' ';
+}
+function updateActivity(){
+  const days=['M','T','W','T','F','S','S'], vals=[65,42,90,78,55,95,72];
+  const g=document.getElementById('act-bars'); g.innerHTML='';
+  const w=50, gap=8, h=130, pad=10;
+  vals.forEach((v,i)=>{
+    const bh=(v/100)*(h-pad*2), x=pad+i*(w+gap), y=h-bh;
+    const rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x',x); rect.setAttribute('y',y); rect.setAttribute('width',w); rect.setAttribute('height',bh);
+    rect.setAttribute('rx','6'); rect.setAttribute('fill',`rgba(167,139,250,${0.3+v/200})`);
+    rect.setAttribute('stroke','rgba(167,139,250,0.5)'); rect.setAttribute('stroke-width','1');
+    g.appendChild(rect);
+    const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x',x+w/2); txt.setAttribute('y',h+2); txt.setAttribute('text-anchor','middle');
+    txt.setAttribute('fill','rgba(176,210,240,0.4)'); txt.setAttribute('font-size','10');
+    txt.textContent=days[i]; g.appendChild(txt);
+  });
+  document.getElementById('act-val').textContent='72 ';
+}
+updateHR(); updateTemp(); updateSleep(); updateActivity();
+setInterval(updateHR,1200); setInterval(updateTemp,1800); setInterval(updateSleep,2200);
+
+// ── FORM LOGIC (UPDATED WITH BACKEND INTEGRATION) ───────
+let step=1, activity='';
+const titles=['Basic Information','Health & Activity','Your Details'];
+const subs=['Tell us about your furry companion','Current health metrics & lifestyle','Almost there — secure your spot'];
+
+function selectActivity(el){
+  document.querySelectorAll('.activity-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  activity=el.dataset.val;
+}
+
+function nextStep(){
+  if(step===1){
+    if(!document.getElementById('f-name').value||!document.getElementById('f-species').value){
+      shakeForm(); return;
+    }
+  }
+  if(step===3){
+    const em=document.getElementById('f-email').value;
+    const ow=document.getElementById('f-owner').value;
+    if(!em||!ow){ shakeForm(); return; }
+    submitForm(); return;
+  }
+  step++;
+  updateStep();
+}
+
+function prevStep(){ if(step>1){ step--; updateStep(); } }
+
+function shakeForm(){
+  const fw=document.getElementById('form-wrapper');
+  fw.style.animation=''; void fw.offsetWidth;
+  fw.style.animation='shake .4s ease';
+}
+
+function updateStep(){
+  document.querySelectorAll('.form-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step'+step).classList.add('active');
+  document.getElementById('step-title').textContent=titles[step-1];
+  document.getElementById('step-sub').textContent=subs[step-1];
+  document.getElementById('step-counter').textContent=`STEP ${step} OF 3`;
+  document.getElementById('btn-back').style.visibility=step>1?'visible':'hidden';
+  document.getElementById('btn-next').textContent=step===3?'Create Profile 🐾':'Continue →';
+  for(let i=1;i<=3;i++){
+    const d=document.getElementById('sd'+i);
+    d.classList.remove('active','done');
+    if(i<step) d.classList.add('done');
+    else if(i===step) d.classList.add('active');
+  }
+}
+
+async function submitForm(){
+  const waitlistId = 'PRN-' + (Math.random() * 900000 + 100000 | 0);
+  
+  // Data Mapping for MySQL Backend
+  const formData = {
+    pet_name: document.getElementById('f-name').value,
+    species: document.getElementById('f-species').value,
+    breed: document.getElementById('f-breed').value,
+    dob: document.getElementById('f-dob').value,
+    weight_kg: document.getElementById('f-weight').value,
+    blood_group: document.getElementById('f-blood').value,
+    activity_level: activity,
+    last_vaccination: document.getElementById('f-vacc').value,
+    is_neutered: document.getElementById('f-neuter').value,
+    allergies: document.getElementById('f-allergy').value,
+    medical_history: document.getElementById('f-history').value,
+    owner_name: document.getElementById('f-owner').value,
+    email: document.getElementById('f-email').value,
+    phone: document.getElementById('f-phone').value,
+    city: document.getElementById('f-city').value,
+    preferred_vet: document.getElementById('f-vet').value,
+    discovery_source: document.getElementById('f-source').value,
+    waitlist_id: waitlistId
+  };
+
+  try {
+    // Connect to your Flask server
+    const response = await fetch('http://127.0.0.1:5000/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+
+    if (response.ok) {
+      // Transition to Success UI
+      document.getElementById('form-content').style.display='none';
+      const sv=document.getElementById('success-view');
+      sv.classList.add('show');
+      document.getElementById('success-id').textContent=waitlistId;
+      launchConfetti();
+    } else {
+      alert("Failed to save data. Make sure your Python server and MySQL are running.");
+    }
+  } catch (err) {
+    console.error("Backend connection error:", err);
+    alert("Connection error to Python backend.");
+  }
+}
+
+function launchConfetti(){
+  const c=document.getElementById('confetti');
+  const colors=['#00e5ff','#00ffd0','#a78bfa','#ffffff','#f59e0b'];
+  for(let i=0;i<120;i++){
+    const p=document.createElement('div');
+    p.className='confetti-piece';
+    p.style.left=Math.random()*100+'vw'; p.style.top='-10px';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.width=(6+Math.random()*8)+'px'; p.style.height=(6+Math.random()*8)+'px';
+    p.style.animationDelay=(Math.random()*1.5)+'s'; p.style.animationDuration=(2+Math.random()*2)+'s';
+    c.appendChild(p);
+  }
+  setTimeout(()=>c.innerHTML='',5000);
+}
+</script>
+<style>
+@keyframes shake {
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}
+  60%{transform:translateX(-5px)}
+  80%{transform:translateX(5px)}
+}
+</style>
+</body>
+</html>
