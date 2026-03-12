@@ -4,24 +4,21 @@ import mysql.connector
 import os
 
 app = Flask(__name__)
-CORS(app)
+# IMPORTANT: This allows Render to send data to your laptop
+CORS(app, resources={r"/*": {"origins": "*"}}) 
 
-# 1. Database Connection Configuration
 def get_db_connection():
     return mysql.connector.connect(
         host="localhost",
-        user="root",      # Default XAMPP user
-        password="",      # Default XAMPP password is empty
+        user="root",
+        password="",
         database="praniva_db"
     )
 
-# 2. Route to serve your index.html
 @app.route('/')
 def index():
-    # Make sure index.html is in the same folder as main.py
     return send_from_directory(os.getcwd(), 'index.html')
 
-# 3. Route to handle the form submission
 @app.route('/submit', methods=['POST'])
 def submit():
     data = request.json
@@ -50,10 +47,11 @@ def submit():
         conn.commit()
         cursor.close()
         conn.close()
-        return jsonify({"status": "success", "message": "Data saved to phpMyAdmin!"}), 200
+        return jsonify({"status": "success"}), 200
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
+    # Running on 0.0.0.0 makes it visible to your local network and Render
     app.run(host='0.0.0.0', port=5000, debug=True)
