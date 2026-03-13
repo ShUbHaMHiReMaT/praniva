@@ -7,13 +7,18 @@ app = Flask(__name__)
 CORS(app)
 
 # ── DATABASE CONFIG ──────────────────────────────────────────
-# On Render: uses PostgreSQL via DATABASE_URL environment variable
-# Locally: falls back to SQLite
-database_url = os.environ.get('DATABASE_URL', 'postgresql://praniva_db_user:rTAKkYCzpNFly4R2i6r8iXHKBlwBNrbn@dpg-d6pdnosr85hc73css77g-a/praniva_db')
+# On Render: uses DATABASE_URL
+# Locally: uses SQLite
 
-# Render gives a postgres:// URL but SQLAlchemy needs postgresql://
-if database_url.startswith('postgres://'):
-    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+database_url = os.environ.get('DATABASE_URL')
+
+if database_url:
+    # Render gives postgres:// but SQLAlchemy expects postgresql://
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+else:
+    # Local fallback
+    database_url = "sqlite:///local.db"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -42,8 +47,9 @@ class PetProfile(db.Model):
     discovery_source = db.Column(db.String(50))
     waitlist_id      = db.Column(db.String(20), unique=True)
 
+# Create tables safely
 with app.app_context():
-    db.create_all()  # safe — only creates tables if they don't exist
+    db.create_all()
 
 # ── ROUTES ───────────────────────────────────────────────────
 @app.route('/')
@@ -74,8 +80,10 @@ def submit():
             discovery_source = data.get('discovery_source'),
             waitlist_id      = data.get('waitlist_id')
         )
+
         db.session.add(new_pet)
         db.session.commit()
+
         return jsonify({"status": "success"}), 200
 
     except Exception as e:
@@ -84,14 +92,18 @@ def submit():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 # ── VIEW ALL SUBMISSIONS ─────────────────────────────────────
-# Visit: https://your-app.onrender.com/admin/submissions?key=praniva2025
 @app.route('/admin/submissions')
 def view_submissions():
+
     secret = request.args.get('key')
+
     if secret != os.environ.get('ADMIN_KEY', 'praniva2025'):
         return jsonify({"error": "Unauthorized"}), 401
+
     pets = PetProfile.query.order_by(PetProfile.id.desc()).all()
+
     result = []
+
     for p in pets:
         result.append({
             "id":               p.id,
@@ -114,7 +126,9 @@ def view_submissions():
             "preferred_vet":    p.preferred_vet,
             "discovery_source": p.discovery_source,
         })
+
     return jsonify({"total": len(result), "submissions": result}), 200
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
